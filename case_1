@@ -1,0 +1,18 @@
+A = list(map(int,input("Введите числа через пробел: ").split()))
+
+max_value = max(A)
+min_value = min(A)
+
+min_index = A.index(min(A))
+max_index = A.index(max(A))
+
+left = min(min_index, max_index)
+right = max(min_index, max_index)
+
+s = 0
+for i in range(left + 1, right):
+    if A[i] < 0:
+        s += A[i]
+
+
+print("Сумма отрицательных элементов: " ,s)
