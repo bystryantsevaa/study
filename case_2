@@ -1,0 +1,28 @@
+class Course:
+    def __init__(self, name, duration):
+        self.name = name        
+        self.duration = duration
+
+    def info(self):
+        print(f"Курс: {self.name}, {self.duration} семестра")
+
+
+class PythonCourse(Course):
+    def __init__(self, name, duration):
+        super().__init__(name, duration)
+        self.language = "Python"
+
+    def info(self):
+        print(f"Курс: {self.name}, язык: {self.language}, {self.duration} семестра")
+
+    def practice(self):
+        print("Выполняется практика по Python")
+
+
+if __name__ == "__main__":
+    course1 = Course("Искусственный интеллект и большие данные", 2)
+    course1.info()
+
+    python_course = PythonCourse("Искусственный интеллект и большие данные", 2)
+    python_course.info()
+    python_course.practice()
