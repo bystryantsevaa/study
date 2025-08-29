@@ -1,0 +1,96 @@
+CREATE DATABASE IF NOT EXISTS tourism;
+USE tourism;
+
+-- Таблица туристов (справочник)
+CREATE TABLE tourists (
+    client_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15),
+    email VARCHAR(50)
+);
+
+-- Вставка данных туристов
+INSERT INTO tourists (client_id, full_name, phone, email) VALUES
+(1, 'Иванов Иван', '8-800-888-88-88', 'ivanovii@mail.ru'),
+(2, 'Галкина Вера', '8-800-999-99-99', 'galka@mail.ru'),
+(3, 'Океанова Афина', '8-800-333-33-33', 'ocean11@mail.ru'),
+(4, 'Баранов Михаил', '8-800-666-65-65', 'baranov7@mail.ru'),
+(5, 'Петрова Мария', '8-800-555-35-35', 'prosto_maria@mail.ru');
+
+
+-- Таблица туров (справочник)
+CREATE TABLE tours (
+    tour_id INT PRIMARY KEY,
+    destination VARCHAR(100) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    price_$ DECIMAL(10,2) NOT NULL
+);
+
+-- Вставка данных туров
+INSERT INTO tours (tour_id, destination, start_date, end_date, price_$) VALUES
+(1, 'Анталия', '2025-01-17', '2025-01-31', 99.99),
+(2, 'Стамбул', '2025-01-18', '2025-02-01', 108.00),
+(3, 'Кападокия', '2025-01-19', '2025-02-02', 50.00),
+(4, 'Алания', '2025-01-20', '2025-02-03', 49.90),
+(5, 'Бодрум', '2025-01-21', '2025-02-04', 109.99),
+(6, 'Анкара', '2025-02-01', '2025-02-10', 120.00),
+(7, 'Измир', '2025-02-05', '2025-02-15', 130.00);
+
+
+-- Таблица отелей (справочник)
+CREATE TABLE hotels (
+    hotel_id INT PRIMARY KEY,
+    hotel_name VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL
+);
+
+-- Вставка данных отелей
+INSERT INTO hotels (hotel_id, hotel_name, city) VALUES
+(1, 'Conrad Hotel 4*', 'Анталия'),
+(2, 'Suleiman SPA Resort 5*', 'Стамбул'),
+(3, 'Cave hotel 3*', 'Кападокия'),
+(4, 'Sea SPA 5*', 'Алания'),
+(5, 'Rixos Premium Bodrum 5*', 'Бодрум'),
+(6, 'Grand Ankara Hotel 4*', 'Анкара'),
+(7, 'Izmir Palace 5*', 'Измир');
+
+
+-- Таблица бронирований (переменная информация)
+CREATE TABLE bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    tour_id INT NOT NULL,
+    hotel_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    booking_status ENUM('подтверждено','ожидает','не подтверждено') DEFAULT 'ожидает',
+    price_$ DECIMAL(10,2) NOT NULL,
+    payment_status ENUM('оплачено','не оплачено') DEFAULT 'не оплачено',
+    CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES tourists(client_id),
+    CONSTRAINT fk_tour FOREIGN KEY (tour_id) REFERENCES tours(tour_id),
+    CONSTRAINT fk_hotel FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
+    CONSTRAINT chk_tour_hotel CHECK (tour_id = hotel_id)
+);
+
+-- Вставка данных бронирования
+INSERT INTO bookings (client_id, tour_id, hotel_id, start_date, end_date, booking_status, price_$, payment_status)
+SELECT t.client_id, tr.tour_id, tr.tour_id AS hotel_id, tr.start_date, tr.end_date, t.booking_status, tr.price_$, t.payment_status
+FROM (
+    SELECT 1 AS client_id, 1 AS tour_id, 'подтверждено' AS booking_status, 'оплачено' AS payment_status
+    UNION ALL
+    SELECT 1, 3, 'ожидает', 'не оплачено'
+    UNION ALL
+    SELECT 2, 2, 'подтверждено', 'оплачено'
+    UNION ALL
+    SELECT 2, 4, 'ожидает', 'не оплачено'
+    UNION ALL
+    SELECT 3, 5, 'подтверждено', 'оплачено'
+    UNION ALL
+    SELECT 4, 6, 'ожидает', 'не оплачено'
+    UNION ALL
+    SELECT 5, 7, 'подтверждено', 'оплачено'
+) AS t
+JOIN tours AS tr ON t.tour_id = tr.tour_id;
+
+SELECT * FROM bookings
